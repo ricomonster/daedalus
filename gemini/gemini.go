@@ -52,6 +52,8 @@ func (g *gemini) Prompt(ctx context.Context, prompt string) (string, error) {
 		genai.Text(prompt),
 		nil,
 	)
+	// TODO: Add validation if model already reached the limit so we can switch to another
+	// model in the list
 	if err != nil {
 		return "", err
 	}
