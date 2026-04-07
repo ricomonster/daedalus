@@ -58,7 +58,7 @@ var stylusGenerateCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		fmt.Print("done!")
+		fmt.Println("done!")
 	},
 }
 
