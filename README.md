@@ -31,5 +31,5 @@ make install INSTALL_DIR=~/bin
  
 **3. Verify**
 ```bash
-release-cli --version
+daedalus --version
 ```
