@@ -5,8 +5,8 @@ My utility toolbox
  
 **1. Clone and enter the repo**
 ```bash
-git clone <this-repo>
-cd release-cli
+git clone git@github.com:ricomonster/daedalus.git
+cd daedalus
 ```
  
 **2. Build and install**
