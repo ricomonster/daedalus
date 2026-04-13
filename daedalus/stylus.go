@@ -10,6 +10,7 @@ type (
 
 	StylusApplication interface {
 		Commit(ctx context.Context, message string) error
+
 		GetChanges(ctx context.Context) (*Changes, error)
 
 		GetCommitMessage(ctx context.Context, changes *Changes) (string, error)

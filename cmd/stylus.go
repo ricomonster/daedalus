@@ -22,15 +22,6 @@ var sa daedalus.StylusApplication
 // stylusCmd represents the stylus command
 var stylusCmd = &cobra.Command{
 	Use:   "stylus",
-	Short: "A CLI tool for automating git workflows using an LLM.",
-	Long:  `Streamlines your git workflow by using an LLM to automate repetitive tasks like writing commit messages and PR descriptions directly from your terminal.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		cmd.Help()
-	},
-}
-
-var stylusGenerateCmd = &cobra.Command{
-	Use:   "generate",
 	Short: "Generate a commit message from your staged git changes.",
 	Long:  `Analyzes your staged git diff and uses an LLM to generate a commit message following the Conventional Commits spec. Stage your changes with git add, then run this command to get a ready-to-use commit message or full PR description.`,
 	Run: func(cmd *cobra.Command, args []string) {
@@ -39,12 +30,14 @@ var stylusGenerateCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		fmt.Println("🔍  Fetching changes...")
 		changes, err := sa.GetChanges(context.TODO())
 		if err != nil {
 			fmt.Printf("error: %v\n", err)
 			os.Exit(1)
 		}
 
+		fmt.Println("✍️ Oracle is checking...")
 		commit, err := sa.GetCommitMessage(context.TODO(), changes)
 		if err != nil {
 			fmt.Printf("error: %v\n", err)
@@ -58,7 +51,7 @@ var stylusGenerateCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		fmt.Println("done!")
+		fmt.Println("✅  Ready to push!")
 	},
 }
 
@@ -80,9 +73,6 @@ func init() {
 
 	// apps
 	sa = application.NewStylusApplication(gi, ge)
-
-	// stylus generate
-	stylusCmd.AddCommand(stylusGenerateCmd)
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
