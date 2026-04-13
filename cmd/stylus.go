@@ -30,14 +30,14 @@ var stylusCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		fmt.Println("🔍  Fetching changes...")
+		fmt.Println("🏗️  Fetching changes...")
 		changes, err := sa.GetChanges(context.TODO())
 		if err != nil {
 			fmt.Printf("error: %v\n", err)
 			os.Exit(1)
 		}
 
-		fmt.Println("✍️ Oracle is checking...")
+		fmt.Println("🔍  Oracle is checking...")
 		commit, err := sa.GetCommitMessage(context.TODO(), changes)
 		if err != nil {
 			fmt.Printf("error: %v\n", err)
@@ -51,7 +51,7 @@ var stylusCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		fmt.Println("✅  Ready to push!")
+		fmt.Println("\n✅  Ready to push!")
 	},
 }
 
