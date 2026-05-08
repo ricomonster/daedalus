@@ -43,9 +43,8 @@ func (oa *oracleApplication) SetLLMKey(
 
 	switch llm {
 	case oa.gemini.Name():
-	default:
 		return oa.gemini.SetKey(ctx, key)
+	default:
+		return daedalus.OracleErrUnsupportedLLM
 	}
-
-	return nil
 }
