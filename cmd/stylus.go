@@ -50,9 +50,8 @@ var stylusCmd = &cobra.Command{
 		}
 
 		// Commit the changes
-		if err := daedalus.WithSpinner("Committing", func() error {
-			return sa.Commit(cmd.Context(), commit)
-		}); err != nil {
+		err := sa.Commit(cmd.Context(), commit)
+		if err != nil {
 			fmt.Printf("error: %v\n", err)
 			os.Exit(1)
 		}
