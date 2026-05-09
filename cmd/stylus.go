@@ -60,7 +60,7 @@ var stylusCmd = &cobra.Command{
 		}
 
 		elapsed := time.Since(start)
-		fmt.Printf("\n✅  Ready to push! (%.1fs\n)", elapsed.Seconds())
+		fmt.Printf("\n✅  Ready to push! (%.1fs)\n", elapsed.Seconds())
 	},
 }
 
