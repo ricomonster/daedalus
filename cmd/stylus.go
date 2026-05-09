@@ -4,7 +4,6 @@ Copyright © 2026 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
-	"context"
 	"fmt"
 	"os"
 
@@ -30,23 +29,30 @@ var stylusCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		fmt.Println("🏗️  Fetching changes...")
-		changes, err := sa.GetChanges(context.TODO())
-		if err != nil {
+		var changes *daedalus.Changes
+		if err := daedalus.WithSpinner("Fetching changes", func() error {
+			var e error
+			changes, e = sa.GetChanges(cmd.Context())
+			return e
+		}); err != nil {
 			fmt.Printf("error: %v\n", err)
 			os.Exit(1)
 		}
 
-		fmt.Println("🔍  Oracle is checking...")
-		commit, err := sa.GetCommitMessage(context.TODO(), changes)
-		if err != nil {
+		var commit string
+		if err := daedalus.WithSpinner("Oracle is checking", func() error {
+			var e error
+			commit, e = sa.GetCommitMessage(cmd.Context(), changes)
+			return e
+		}); err != nil {
 			fmt.Printf("error: %v\n", err)
 			os.Exit(1)
 		}
 
 		// Commit the changes
-		err = sa.Commit(context.TODO(), commit)
-		if err != nil {
+		if err := daedalus.WithSpinner("Committing", func() error {
+			return sa.Commit(cmd.Context(), commit)
+		}); err != nil {
 			fmt.Printf("error: %v\n", err)
 			os.Exit(1)
 		}
