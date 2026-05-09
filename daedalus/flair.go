@@ -24,3 +24,14 @@ func WithSpinner(label string, fn func() error) error {
 		}
 	}
 }
+
+func WithInkStroke(label string, fn func() error) error {
+	frames := []string{"▱▱▱▱▱", "▰▱▱▱▱", "▰▰▱▱▱", "▰▰▰▱▱", "▰▰▰▰▱", "▰▰▰▰▰"}
+	for _, f := range frames {
+		fmt.Printf("\r%s  Committing...", f)
+		time.Sleep(100 * time.Millisecond)
+	}
+	fmt.Printf("\r\033[K")
+
+	return fn()
+}

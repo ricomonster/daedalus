@@ -58,15 +58,9 @@ var stylusCmd = &cobra.Command{
 		}
 
 		// Commit the changes
-		seals := []string{"📝", "✍️ ", "🖊️ ", "✒️ ", "📜"}
-		for _, f := range seals {
-			fmt.Printf("\r%s  Committing...", f)
-			time.Sleep(120 * time.Millisecond)
-		}
-		fmt.Printf("\r\033[K")
-
-		err := sa.Commit(cmd.Context(), commit)
-		if err != nil {
+		if err := daedalus.WithInkStroke("Committing...", func() error {
+			return sa.Commit(cmd.Context(), commit)
+		}); err != nil {
 			fmt.Printf("error: %v\n", err)
 			os.Exit(1)
 		}
