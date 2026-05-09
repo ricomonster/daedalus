@@ -6,6 +6,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/spf13/cobra"
 
@@ -24,6 +25,8 @@ var stylusCmd = &cobra.Command{
 	Short: "Generate a commit message from your staged git changes.",
 	Long:  `Analyzes your staged git diff and uses an LLM to generate a commit message following the Conventional Commits spec. Stage your changes with git add, then run this command to get a ready-to-use commit message or full PR description.`,
 	Run: func(cmd *cobra.Command, args []string) {
+		start := time.Now()
+
 		if sa == nil {
 			fmt.Println("failed to initialize stylus application")
 			os.Exit(1)
@@ -56,7 +59,8 @@ var stylusCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		fmt.Println("\n✅  Ready to push!")
+		elapsed := time.Since(start)
+		fmt.Printf("\n✅  Ready to push! (%.1fs\n)", elapsed.Seconds())
 	},
 }
 
