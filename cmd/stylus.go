@@ -4,6 +4,7 @@ Copyright © 2026 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"time"
@@ -42,10 +43,14 @@ var stylusCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		// Timeout after 2 minutes
+		ctx, cancel := context.WithTimeout(cmd.Context(), 120*time.Second)
+		defer cancel()
+
 		var commit string
 		if err := daedalus.WithSpinner("Oracle is checking", func() error {
 			var e error
-			commit, e = sa.GetCommitMessage(cmd.Context(), changes)
+			commit, e = sa.GetCommitMessage(ctx, changes)
 			return e
 		}); err != nil {
 			fmt.Printf("error: %v\n", err)
@@ -53,6 +58,13 @@ var stylusCmd = &cobra.Command{
 		}
 
 		// Commit the changes
+		seals := []string{"📝", "✍️ ", "🖊️ ", "✒️ ", "📜"}
+		for _, f := range seals {
+			fmt.Printf("\r%s  Committing...", f)
+			time.Sleep(120 * time.Millisecond)
+		}
+		fmt.Printf("\r\033[K")
+
 		err := sa.Commit(cmd.Context(), commit)
 		if err != nil {
 			fmt.Printf("error: %v\n", err)
