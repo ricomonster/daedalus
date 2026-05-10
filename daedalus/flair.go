@@ -57,7 +57,9 @@ func WithInkStroke(label string, start time.Time, fn func() error) error {
 		fmt.Printf("\r%s  %s  %.1fs", f, label, time.Since(start).Seconds())
 		time.Sleep(100 * time.Millisecond)
 	}
+
 	fmt.Printf("\r\033[K")
+	fmt.Printf("\033[2m---\033[0m\n")
 
 	return fn()
 }
