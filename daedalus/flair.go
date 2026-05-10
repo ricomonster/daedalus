@@ -23,7 +23,7 @@ var labels = []label{
 func PrintChangedFiles(files []string) {
 	l := labels[rand.Intn(len(labels))]
 
-	fmt.Printf("  %s  \033[2m%s\033[0m\n", l.icon, l.label)
+	fmt.Printf("%s  \033[2m%s\033[0m\n", l.icon, l.label)
 	for _, f := range files {
 		fmt.Printf("  \033[2m↳\033[0m %s\n", f)
 		time.Sleep(40 * time.Millisecond)
