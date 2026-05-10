@@ -20,24 +20,23 @@ var labels = []label{
 	{"[#]", "cataloguing the chaos..."},
 }
 
-func PrintChangedFiles(files []string) {
+func PrintChangedFiles(files []string, start time.Time) {
 	l := labels[rand.Intn(len(labels))]
 
-	fmt.Printf("%s  \033[2m%s\033[0m\n", l.icon, l.label)
+	fmt.Printf("%s  \033[2m%s\033[0m  %.1fs\n", l.icon, l.label, time.Since(start).Seconds())
 	for _, f := range files {
 		fmt.Printf("  \033[2m↳\033[0m %s\n", f)
 		time.Sleep(40 * time.Millisecond)
 	}
 }
 
-func WithSpinner(label string, fn func() error) error {
+func WithSpinner(label string, start time.Time, fn func() error) error {
 	frames := []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
 	done := make(chan error, 1)
 	go func() { done <- fn() }()
 
 	fmt.Printf("%s  %s  0.0s\n", frames[0], label)
 
-	start := time.Now()
 	i := 0
 	for {
 		select {
@@ -52,10 +51,10 @@ func WithSpinner(label string, fn func() error) error {
 	}
 }
 
-func WithInkStroke(label string, fn func() error) error {
+func WithInkStroke(label string, start time.Time, fn func() error) error {
 	frames := []string{"▱▱▱▱▱", "▰▱▱▱▱", "▰▰▱▱▱", "▰▰▰▱▱", "▰▰▰▰▱", "▰▰▰▰▰"}
 	for _, f := range frames {
-		fmt.Printf("\r%s  Committing...", f)
+		fmt.Printf("\r%s  %s  %.1fs", f, label, time.Since(start).Seconds())
 		time.Sleep(100 * time.Millisecond)
 	}
 	fmt.Printf("\r\033[K")

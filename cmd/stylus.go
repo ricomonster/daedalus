@@ -39,14 +39,14 @@ var stylusCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		daedalus.PrintChangedFiles(changes.Files)
+		daedalus.PrintChangedFiles(changes.Files, start)
 
 		// Timeout after 2 minutes
 		ctx, cancel := context.WithTimeout(cmd.Context(), 120*time.Second)
 		defer cancel()
 
 		var commit string
-		if err := daedalus.WithSpinner("Oracle is checking", func() error {
+		if err := daedalus.WithSpinner("Oracle is checking", start, func() error {
 			var e error
 			commit, e = sa.GetCommitMessage(ctx, changes)
 			return e
@@ -56,7 +56,7 @@ var stylusCmd = &cobra.Command{
 		}
 
 		// Commit the changes
-		if err := daedalus.WithInkStroke("Committing...", func() error {
+		if err := daedalus.WithInkStroke("Committing...", start, func() error {
 			return sa.Commit(cmd.Context(), commit)
 		}); err != nil {
 			fmt.Printf("error: %v\n", err)
