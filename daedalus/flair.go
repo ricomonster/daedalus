@@ -2,8 +2,25 @@ package daedalus
 
 import (
 	"fmt"
+	"math/rand"
 	"time"
 )
+
+func PrintChangedFiles(files []string) {
+	labels := []string{
+		"rummaging through your mess...",
+		"inspecting the damage...",
+		"cataloguing the chaos...",
+		"sifting through changes...",
+		"reading the diff entrails...",
+		"taking inventory...",
+	}
+	fmt.Printf("  \033[2m%s\033[0m\n", labels[rand.Intn(len(labels))])
+	for _, f := range files {
+		fmt.Printf("  \033[2m↳\033[0m %s\n", f)
+		time.Sleep(40 * time.Millisecond)
+	}
+}
 
 func WithSpinner(label string, fn func() error) error {
 	frames := []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}

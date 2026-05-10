@@ -39,10 +39,7 @@ var stylusCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		for _, f := range changes.Files {
-			fmt.Printf("  \033[2m↳\033[0m %s\n", f)
-			time.Sleep(40 * time.Millisecond)
-		}
+		daedalus.PrintChangedFiles(changes.Files)
 
 		// Timeout after 2 minutes
 		ctx, cancel := context.WithTimeout(cmd.Context(), 120*time.Second)
