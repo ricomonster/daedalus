@@ -10,15 +10,17 @@ func WithSpinner(label string, fn func() error) error {
 	done := make(chan error, 1)
 	go func() { done <- fn() }()
 
+	fmt.Printf("%s  %s  0.0s\n", frames[0], label)
+
 	start := time.Now()
 	i := 0
 	for {
 		select {
 		case err := <-done:
-			fmt.Printf("\r\033[K") // clear line
+			fmt.Printf("\033[1A\r\033[K")
 			return err
 		default:
-			fmt.Printf("\r%s  %s  %.1fs", frames[i%len(frames)], label, time.Since(start).Seconds())
+			fmt.Printf("\033[1A\r%s  %s  %.1fs\n", frames[i%len(frames)], label, time.Since(start).Seconds())
 			i++
 			time.Sleep(80 * time.Millisecond)
 		}

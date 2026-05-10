@@ -33,14 +33,15 @@ var stylusCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		var changes *daedalus.Changes
-		if err := daedalus.WithSpinner("Fetching changes", func() error {
-			var e error
-			changes, e = sa.GetChanges(cmd.Context())
-			return e
-		}); err != nil {
+		changes, err := sa.GetChanges(cmd.Context())
+		if err != nil {
 			fmt.Printf("error: %v\n", err)
 			os.Exit(1)
+		}
+
+		for _, f := range changes.Files {
+			fmt.Printf("  \033[2m↳\033[0m %s\n", f)
+			time.Sleep(40 * time.Millisecond)
 		}
 
 		// Timeout after 2 minutes
