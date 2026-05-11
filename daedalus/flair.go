@@ -35,17 +35,16 @@ func WithSpinner(label string, start time.Time, fn func() error) error {
 	done := make(chan error, 1)
 	go func() { done <- fn() }()
 
-	fmt.Printf("%s  %s\n\033[2m   ⏱ 0.0s\033[0m\n", frames[0], label)
+	fmt.Printf("%s  %s  0.0s\n", frames[0], label)
 
 	i := 0
 	for {
 		select {
 		case err := <-done:
-			fmt.Printf("\033[2A\r\033[J")
+			fmt.Printf("\033[1A\r\033[K")
 			return err
 		default:
-			fmt.Printf("\033[2A\r%s  %s\n\033[2m   ⏱ %.1fs\033[0m\n",
-				frames[i%len(frames)], label, time.Since(start).Seconds())
+			fmt.Printf("\033[1A\r%s  %s  %.1fs\n", frames[i%len(frames)], label, time.Since(start).Seconds())
 			i++
 			time.Sleep(80 * time.Millisecond)
 		}
@@ -59,6 +58,8 @@ func WithInkStroke(label string, start time.Time, fn func() error) error {
 		time.Sleep(100 * time.Millisecond)
 	}
 
-	fmt.Printf("\r\033[K\033[2m---  ⏱ %.1fs\033[0m\n", time.Since(start).Seconds())
+	fmt.Printf("\r\033[K")
+	fmt.Printf("\033[2m---\033[0m\n")
+
 	return fn()
 }
