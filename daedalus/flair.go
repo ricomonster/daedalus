@@ -59,20 +59,6 @@ func WithInkStroke(label string, start time.Time, fn func() error) error {
 		time.Sleep(100 * time.Millisecond)
 	}
 
-	fmt.Printf("\r\033[K\033[2m---\033[0m\n")
-
-	done := make(chan error, 1)
-	go func() { done <- fn() }()
-
-	fmt.Printf("\033[2m   ⏱ %.1fs\033[0m\n", time.Since(start).Seconds())
-	for {
-		select {
-		case err := <-done:
-			fmt.Printf("\033[1A\r\033[K")
-			return err
-		default:
-			fmt.Printf("\033[1A\r\033[2m   ⏱ %.1fs\033[0m\n", time.Since(start).Seconds())
-			time.Sleep(80 * time.Millisecond)
-		}
-	}
+	fmt.Printf("\r\033[K\033[2m---  ⏱ %.1fs\033[0m\n", time.Since(start).Seconds())
+	return fn()
 }
