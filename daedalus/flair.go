@@ -20,17 +20,17 @@ var labels = []label{
 	{"[#]", "cataloguing the chaos..."},
 }
 
-func PrintChangedFiles(files []string, start time.Time) {
+func PrintChangedFiles(files []string) {
 	l := labels[rand.Intn(len(labels))]
 
-	fmt.Printf("%s  \033[2m%s\033[0m  %.1fs\n", l.icon, l.label, time.Since(start).Seconds())
+	fmt.Printf("%s  \033[2m%s\033[0m\n", l.icon, l.label)
 	for _, f := range files {
 		fmt.Printf("  \033[2m↳\033[0m %s\n", f)
 		time.Sleep(40 * time.Millisecond)
 	}
 }
 
-func WithSpinner(label string, fn func() error) error {
+func WithSpinner(label string, start time.Time, fn func() error) error {
 	frames := []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
 	done := make(chan error, 1)
 	go func() { done <- fn() }()
@@ -44,7 +44,7 @@ func WithSpinner(label string, fn func() error) error {
 			fmt.Printf("\033[1A\r\033[K")
 			return err
 		default:
-			fmt.Printf("\033[1A\r%s  %s\n", frames[i%len(frames)], label)
+			fmt.Printf("\033[1A\r%s  %s  %.1fs\n", frames[i%len(frames)], label, time.Since(start).Seconds())
 			i++
 			time.Sleep(80 * time.Millisecond)
 		}
@@ -59,7 +59,7 @@ func WithInkStroke(label string, start time.Time, fn func() error) error {
 	}
 
 	fmt.Printf("\r\033[K")
-	fmt.Printf("\033[2m\n\n\033[0m\n")
+	fmt.Printf("\033[2m\n\033[0m\n")
 
 	return fn()
 }
