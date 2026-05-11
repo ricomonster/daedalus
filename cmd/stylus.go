@@ -46,7 +46,7 @@ var stylusCmd = &cobra.Command{
 		defer cancel()
 
 		var commit string
-		if err := daedalus.WithSpinner("Oracle is checking", start, func() error {
+		if err := daedalus.WithSpinner("Oracle is checking", func() error {
 			var e error
 			commit, e = sa.GetCommitMessage(ctx, changes)
 			return e

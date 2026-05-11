@@ -30,7 +30,7 @@ func PrintChangedFiles(files []string, start time.Time) {
 	}
 }
 
-func WithSpinner(label string, start time.Time, fn func() error) error {
+func WithSpinner(label string, fn func() error) error {
 	frames := []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
 	done := make(chan error, 1)
 	go func() { done <- fn() }()
@@ -44,7 +44,7 @@ func WithSpinner(label string, start time.Time, fn func() error) error {
 			fmt.Printf("\033[1A\r\033[K")
 			return err
 		default:
-			fmt.Printf("\033[1A\r%s  %s  %.1fs\n", frames[i%len(frames)], label, time.Since(start).Seconds())
+			fmt.Printf("\033[1A\r%s  %s\n", frames[i%len(frames)], label)
 			i++
 			time.Sleep(80 * time.Millisecond)
 		}
@@ -59,7 +59,7 @@ func WithInkStroke(label string, start time.Time, fn func() error) error {
 	}
 
 	fmt.Printf("\r\033[K")
-	fmt.Printf("\033[2m---\033[0m\n")
+	fmt.Printf("\033[2m\n\n\033[0m\n")
 
 	return fn()
 }
