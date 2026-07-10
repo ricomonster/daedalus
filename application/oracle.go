@@ -26,7 +26,7 @@ func (oa *oracleApplication) Prompt(ctx context.Context, prompt string) (string,
 	// Get the default llm
 	llm := oa.config.GetString(daedalus.OracleConfigDefaultLLM)
 	switch daedalus.LLM(llm) {
-	case oa.gemini.Name():
+	case oa.gemini.Name(), "":
 	default:
 		return oa.gemini.Prompt(ctx, prompt)
 	}

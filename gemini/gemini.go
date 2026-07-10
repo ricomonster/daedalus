@@ -14,7 +14,7 @@ import (
 var (
 	name      daedalus.LLM = "gemini"
 	geminiKey              = "GOOGLE_API_KEY"
-	model                  = "gemini-3.1-flash-lite-preview"
+	model                  = "gemini-3.1-flash-lite"
 )
 
 var ErrKeyNotProvided = errors.New("google key not found")
@@ -23,6 +23,9 @@ type gemini struct {
 	config *config.Config
 	client *genai.Client
 	mu     sync.Mutex
+	once   sync.Once
+	// Stores the error that was produced when instantiating
+	initErr error
 }
 
 func New(co *config.Config) daedalus.LLMApplication {
