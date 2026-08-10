@@ -8,45 +8,44 @@ import (
 	"google.golang.org/genai"
 
 	"github.com/ricomonster/daedalus/config"
-	"github.com/ricomonster/daedalus/daedalus"
 )
 
 var (
-	name      daedalus.LLM = "gemini"
-	geminiKey              = "GOOGLE_API_KEY"
-	model                  = "gemini-3.1-flash-lite-preview"
+	name      = "gemini"
+	geminiKey = "GOOGLE_API_KEY"
+	model     = "gemini-3.1-flash-lite-preview"
 )
 
 var ErrKeyNotProvided = errors.New("google key not found")
 
-type gemini struct {
+type Client struct {
 	config *config.Config
 	client *genai.Client
-	mu     sync.Mutex
+	mu     *sync.Mutex
 }
 
-func New(co *config.Config) daedalus.LLMApplication {
-	return &gemini{config: co}
+func New(co *config.Config) *Client {
+	return &Client{config: co}
 }
 
-func (g *gemini) Name() daedalus.LLM {
+func (c *Client) Name() string {
 	return name
 }
 
-func (g *gemini) SetKey(ctx context.Context, key string) error {
-	g.config.Set(geminiKey, key)
-	return g.config.Save()
+func (c *Client) SetKey(ctx context.Context, key string) error {
+	c.config.Set(geminiKey, key)
+	return c.config.Save()
 }
 
-func (g *gemini) Prompt(ctx context.Context, prompt string) (string, error) {
-	if g.client == nil {
-		err := g.instantiate(ctx)
+func (c *Client) Prompt(ctx context.Context, prompt string) (string, error) {
+	if c.client == nil {
+		err := c.instantiate(ctx)
 		if err != nil {
 			return "", err
 		}
 	}
 
-	result, err := g.client.Models.GenerateContent(
+	result, err := c.client.Models.GenerateContent(
 		ctx,
 		model,
 		genai.Text(prompt),
@@ -61,14 +60,14 @@ func (g *gemini) Prompt(ctx context.Context, prompt string) (string, error) {
 	return result.Text(), nil
 }
 
-func (g *gemini) instantiate(ctx context.Context) error {
-	g.mu.Lock()
-	defer g.mu.Unlock()
-	if g.client != nil {
+func (c *Client) instantiate(ctx context.Context) error {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+	if c.client != nil {
 		return nil
 	}
 
-	k := g.config.GetString(geminiKey)
+	k := c.config.GetString(geminiKey)
 	if k == "" {
 		return ErrKeyNotProvided
 	}
@@ -81,6 +80,6 @@ func (g *gemini) instantiate(ctx context.Context) error {
 		return err
 	}
 
-	g.client = client
+	c.client = client
 	return nil
 }

@@ -6,6 +6,7 @@ package cmd
 import (
 	"context"
 	"fmt"
+	"math/rand"
 	"os"
 	"time"
 
@@ -17,6 +18,32 @@ import (
 	"github.com/ricomonster/daedalus/gemini"
 	"github.com/ricomonster/daedalus/git"
 )
+
+var spinning = []string{
+	"Getting things ready",
+	"Making progress",
+	"Working on it",
+	"Putting things together",
+	"Taking a closer look",
+	"Making some adjustments",
+	"Processing your request",
+	"Almost there",
+	"Finishing up",
+	"Wrapping things up",
+}
+
+var stroking = []string{
+	"Preparing your changes",
+	"Gathering everything together",
+	"Taking one last look",
+	"Putting things in order",
+	"Saving your progress",
+	"Getting everything ready",
+	"Making it official",
+	"Sealing the deal",
+	"Wrapping things up",
+	"Almost finished",
+}
 
 var sa daedalus.StylusApplication
 
@@ -45,8 +72,10 @@ var stylusCmd = &cobra.Command{
 		ctx, cancel := context.WithTimeout(cmd.Context(), 120*time.Second)
 		defer cancel()
 
+		spin := spinning[rand.Intn(len(spinning))]
+
 		var commit string
-		if err := daedalus.WithSpinner("Oracle is checking", start, func() error {
+		if err := daedalus.WithSpinner(spin, start, func() error {
 			var e error
 			commit, e = sa.GetCommitMessage(ctx, changes)
 			return e
@@ -56,7 +85,8 @@ var stylusCmd = &cobra.Command{
 		}
 
 		// Commit the changes
-		if err := daedalus.WithInkStroke("Committing...", start, func() error {
+		stroke := stroking[rand.Intn(len(stroking))]
+		if err := daedalus.WithInkStroke(fmt.Sprintf("%s...", stroke), start, func() error {
 			return sa.Commit(cmd.Context(), commit)
 		}); err != nil {
 			fmt.Printf("error: %v\n", err)

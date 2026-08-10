@@ -6,16 +6,16 @@ import (
 	"strings"
 
 	"github.com/ricomonster/daedalus/daedalus"
+	"github.com/ricomonster/daedalus/gemini"
 	"github.com/ricomonster/daedalus/git"
 )
 
 type stylusApplication struct {
-	git *git.Client
-	// oracleApp daedalus.OracleApplication
-	gemini daedalus.LLMApplication
+	git    *git.Client
+	gemini *gemini.Client
 }
 
-func NewStylusApplication(gi *git.Client, ge daedalus.LLMApplication) daedalus.StylusApplication {
+func NewStylusApplication(gi *git.Client, ge *gemini.Client) daedalus.StylusApplication {
 	return &stylusApplication{gi, ge}
 }
 
