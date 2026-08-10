@@ -21,7 +21,7 @@ var ErrKeyNotProvided = errors.New("google key not found")
 type Client struct {
 	config *config.Config
 	client *genai.Client
-	mu     *sync.Mutex
+	mu     sync.Mutex
 }
 
 func New(co *config.Config) *Client {
