@@ -9,8 +9,8 @@ import (
 
 type Client struct{}
 
-func New() (*Client, error) {
-	return &Client{}, nil
+func New() *Client {
+	return &Client{}
 }
 
 func (c *Client) Commit(message string) error {
@@ -63,6 +63,13 @@ func (c *Client) GetStagedDiff() (string, error) {
 	}
 
 	return diff, nil
+}
+
+func (c *Client) Push() error {
+	cmd := exec.Command("git", "push")
+	cmd.Stdout, cmd.Stderr, cmd.Stdin = os.Stdout, os.Stderr, os.Stdin
+
+	return cmd.Run()
 }
 
 func (c *Client) Validate() error {

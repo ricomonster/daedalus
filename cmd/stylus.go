@@ -45,8 +45,6 @@ var stroking = []string{
 	"Almost finished",
 }
 
-var sa daedalus.StylusApplication
-
 // stylusCmd represents the stylus command
 var stylusCmd = &cobra.Command{
 	Use:   "stylus",
@@ -55,10 +53,21 @@ var stylusCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		start := time.Now()
 
-		if sa == nil {
-			fmt.Println("failed to initialize stylus application")
+		// Here you will define your flags and configuration settings.
+		conf, err := config.New()
+		if err != nil {
+			fmt.Printf("failed to load config: %v\n", err)
 			os.Exit(1)
 		}
+
+		// llm
+		ge := gemini.New(conf)
+
+		// services
+		gi := git.New()
+
+		// apps
+		sa := application.NewStylusApplication(gi, ge)
 
 		changes, err := sa.GetChanges(cmd.Context())
 		if err != nil {
@@ -93,6 +102,19 @@ var stylusCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		// Check if we need to push
+		push, _ := cmd.Flags().GetBool("push")
+		if push {
+			if err := gi.Push(); err != nil {
+				fmt.Printf("error: %v\n", err)
+				os.Exit(1)
+			}
+
+			elapsed := time.Since(start)
+			fmt.Printf("\n✅  Committed and pushed! (%.1fs)\n", elapsed.Seconds())
+			return
+		}
+
 		elapsed := time.Since(start)
 		fmt.Printf("\n✅  Ready to push! (%.1fs)\n", elapsed.Seconds())
 	},
@@ -101,25 +123,9 @@ var stylusCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(stylusCmd)
 
-	// Here you will define your flags and configuration settings.
-	conf, err := config.New()
-	if err != nil {
-		fmt.Printf("failed to load config: %v\n", err)
-		os.Exit(1)
-	}
-
-	// llm
-	ge := gemini.New(conf)
-
-	// services
-	gi, _ := git.New()
-
-	// apps
-	sa = application.NewStylusApplication(gi, ge)
-
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// stylusCmd.PersistentFlags().String("foo", "", "A help for foo")
+	stylusCmd.Flags().Bool("push", false, "push current branch after committing")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:

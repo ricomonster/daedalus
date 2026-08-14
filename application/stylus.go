@@ -54,7 +54,8 @@ Files: %s
 Diff: %s 
 Respond with ONLY the commit message.`,
 		strings.Join(changes.Files, " "),
-		daedalus.TruncateDiff(changes.Diff, 8000))
+		changes.Diff,
+	)
 
 	// Run gemini
 	return sa.gemini.Prompt(ctx, prompt)

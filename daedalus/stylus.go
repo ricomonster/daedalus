@@ -16,11 +16,3 @@ type (
 		GetCommitMessage(ctx context.Context, changes *Changes) (string, error)
 	}
 )
-
-func TruncateDiff(diff string, max int) string {
-	if len(diff) > max {
-		return diff[:max]
-	}
-
-	return diff
-}
