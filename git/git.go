@@ -18,8 +18,8 @@ func (c *Client) Commit(message string) ([]byte, error) {
 	cmd := exec.Command("git", "commit", "-m", message)
 
 	var output bytes.Buffer
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
+	cmd.Stdout = &output
+	cmd.Stderr = &output
 	cmd.Stdin = os.Stdin
 
 	if err := cmd.Run(); err != nil {
