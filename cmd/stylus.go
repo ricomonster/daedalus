@@ -104,7 +104,7 @@ var stylusCmd = &cobra.Command{
 			return err
 		})
 
-		fmt.Printf("%s\n", bytes.TrimRight(commitOut, "\r\n"))
+		fmt.Printf("\n%s", bytes.TrimRight(commitOut, "\r\n"))
 
 		if err != nil {
 			fmt.Printf("error: %v\n", err)
