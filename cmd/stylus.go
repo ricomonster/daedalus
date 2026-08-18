@@ -4,19 +4,19 @@ Copyright © 2026 NAME HERE <EMAIL ADDRESS>
 package cmd
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	"math/rand"
 	"os"
 	"time"
 
-	"github.com/spf13/cobra"
-
 	"github.com/ricomonster/daedalus/application"
 	"github.com/ricomonster/daedalus/config"
 	"github.com/ricomonster/daedalus/daedalus"
 	"github.com/ricomonster/daedalus/gemini"
 	"github.com/ricomonster/daedalus/git"
+	"github.com/spf13/cobra"
 )
 
 var spinning = []string{
@@ -93,10 +93,10 @@ var stylusCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
-		var commitOut []byte
+		stroke := stroking[rand.Intn(len(stroking))]
 
 		// Commit the changes
-		stroke := stroking[rand.Intn(len(stroking))]
+		var commitOut []byte
 		err = daedalus.WithInkStroke(fmt.Sprintf("%s...", stroke), start, func() error {
 			var err error
 			commitOut, err = sa.Commit(cmd.Context(), commit)
@@ -104,7 +104,7 @@ var stylusCmd = &cobra.Command{
 			return err
 		})
 
-		fmt.Print(string(commitOut))
+		fmt.Printf("%s\n", bytes.TrimRight(commitOut, "\r\n"))
 
 		if err != nil {
 			fmt.Printf("error: %v\n", err)
