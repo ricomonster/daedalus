@@ -1,8 +1,8 @@
 BINARY_NAME := daedalus
 MODULE      := $(shell go list -m 2>/dev/null || echo "unknown")
-VERSION     := $(shell node -p "require('./package.json').version" 2>/dev/null || echo "0.0.0")
-COMMIT      := $(shell git rev-parse --short HEAD 2>/dev/null || echo "none")
-BUILD_TIME  := $(shell date -u +"%Y-%m-%dT%H:%M:%SZ")
+VERSION 		?= $(shell git describe --tags --always --dirty 2>/dev/null || echo dev)
+COMMIT 			?= $(shell git rev-parse --short HEAD 2>/dev/null || echo unknown)
+BUILD_TIME 	?= $(shell date -u +%Y-%m-%dT%H:%M:%SZ)
 DIST_DIR    := dist
 
 LDFLAGS := -s -w \

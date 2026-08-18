@@ -93,11 +93,20 @@ var stylusCmd = &cobra.Command{
 			os.Exit(1)
 		}
 
+		var commitOut []byte
+
 		// Commit the changes
 		stroke := stroking[rand.Intn(len(stroking))]
-		if err := daedalus.WithInkStroke(fmt.Sprintf("%s...", stroke), start, func() error {
-			return sa.Commit(cmd.Context(), commit)
-		}); err != nil {
+		err = daedalus.WithInkStroke(fmt.Sprintf("%s...", stroke), start, func() error {
+			var err error
+			commitOut, err = sa.Commit(cmd.Context(), commit)
+
+			return err
+		})
+
+		fmt.Print(string(commitOut))
+
+		if err != nil {
 			fmt.Printf("error: %v\n", err)
 			os.Exit(1)
 		}

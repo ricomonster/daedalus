@@ -1,6 +1,7 @@
 package git
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"os/exec"
@@ -13,21 +14,19 @@ func New() *Client {
 	return &Client{}
 }
 
-func (c *Client) Commit(message string) error {
+func (c *Client) Commit(message string) ([]byte, error) {
 	cmd := exec.Command("git", "commit", "-m", message)
 
-	// stream stdout and stderr directly to terminal in real-time
+	var output bytes.Buffer
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-
-	// needed if pre-commit hooks prompt for input
 	cmd.Stdin = os.Stdin
 
 	if err := cmd.Run(); err != nil {
-		return fmt.Errorf("commit failed: %w", err)
+		return output.Bytes(), fmt.Errorf("commit failed: %w", err)
 	}
 
-	return nil
+	return output.Bytes(), nil
 }
 
 func (c *Client) GetChangedFiles() ([]string, error) {

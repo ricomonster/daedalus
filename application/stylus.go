@@ -19,7 +19,7 @@ func NewStylusApplication(gi *git.Client, ge *gemini.Client) daedalus.StylusAppl
 	return &stylusApplication{gi, ge}
 }
 
-func (sa *stylusApplication) Commit(ctx context.Context, message string) error {
+func (sa *stylusApplication) Commit(ctx context.Context, message string) ([]byte, error) {
 	return sa.git.Commit(message)
 }
 

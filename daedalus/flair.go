@@ -31,35 +31,42 @@ func PrintChangedFiles(files []string) {
 }
 
 func WithSpinner(label string, start time.Time, fn func() error) error {
-	frames := []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
-	done := make(chan error, 1)
-	go func() { done <- fn() }()
-
-	fmt.Printf("%s  %s  0.0s\n", frames[0], label)
-
-	i := 0
-	for {
-		select {
-		case err := <-done:
-			fmt.Printf("\033[1A\r\033[K")
-			return err
-		default:
-			fmt.Printf("\033[1A\r%s  %s  %.1fs\n", frames[i%len(frames)], label, time.Since(start).Seconds())
-			i++
-			time.Sleep(80 * time.Millisecond)
-		}
-	}
+	return withAnimation(label, start, []string{
+		"⠋", "⠙", "⠹", "⠸", "⠼",
+		"⠴", "⠦", "⠧", "⠇", "⠏",
+	}, 80*time.Millisecond, fn)
 }
 
 func WithInkStroke(label string, start time.Time, fn func() error) error {
-	frames := []string{"▱▱▱▱▱", "▰▱▱▱▱", "▰▰▱▱▱", "▰▰▰▱▱", "▰▰▰▰▱", "▰▰▰▰▰"}
-	for _, f := range frames {
-		fmt.Printf("\r%s  %s  %.1fs", f, label, time.Since(start).Seconds())
-		time.Sleep(100 * time.Millisecond)
+	return withAnimation(label, start, []string{
+		"▱▱▱▱▱", "▰▱▱▱▱", "▰▰▱▱▱",
+		"▰▰▰▱▱", "▰▰▰▰▱", "▰▰▰▰▰",
+	}, 100*time.Millisecond, fn)
+}
+
+func withAnimation(
+	label string,
+	start time.Time,
+	frames []string,
+	delay time.Duration,
+	fn func() error,
+) error {
+	done := make(chan error, 1)
+	go func() { done <- fn() }()
+
+	for i := 0; ; i++ {
+		select {
+		case err := <-done:
+			fmt.Printf("\r\033[K")
+			return err
+		default:
+			fmt.Printf(
+				"\r%s  %s  %.1fs",
+				frames[i%len(frames)],
+				label,
+				time.Since(start).Seconds(),
+			)
+			time.Sleep(delay)
+		}
 	}
-
-	fmt.Printf("\r\033[K")
-	fmt.Printf("\033[2m\n\033[0m\n")
-
-	return fn()
 }

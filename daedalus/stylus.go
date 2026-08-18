@@ -9,7 +9,7 @@ type (
 	}
 
 	StylusApplication interface {
-		Commit(ctx context.Context, message string) error
+		Commit(ctx context.Context, message string) ([]byte, error)
 
 		GetChanges(ctx context.Context) (*Changes, error)
 
