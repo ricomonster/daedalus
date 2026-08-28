@@ -11,7 +11,6 @@ import (
 	"os"
 	"time"
 
-	"github.com/ricomonster/daedalus/application"
 	"github.com/ricomonster/daedalus/config"
 	"github.com/ricomonster/daedalus/daedalus"
 	"github.com/ricomonster/daedalus/gemini"
@@ -67,7 +66,7 @@ var stylusCmd = &cobra.Command{
 		gi := git.New()
 
 		// apps
-		sa := application.NewStylusApplication(gi, ge)
+		sa := daedalus.NewStylusService(gi, ge)
 
 		changes, err := sa.GetChanges(cmd.Context())
 		if err != nil {

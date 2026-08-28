@@ -16,20 +16,20 @@ type (
 	}
 )
 
-func NewCalliopeService(gi *git.Client, ge *gemini.Client) *CalliopeService {
-	return &CalliopeService{gi, ge}
+func NewStylusService(gi *git.Client, ge *gemini.Client) *StylusService {
+	return &StylusService{gi, ge}
 }
 
-type CalliopeService struct {
+type StylusService struct {
 	git    *git.Client
 	gemini *gemini.Client
 }
 
-func (c *CalliopeService) Commit(ctx context.Context, message string) ([]byte, error) {
+func (c *StylusService) Commit(ctx context.Context, message string) ([]byte, error) {
 	return c.git.Commit(message)
 }
 
-func (c *CalliopeService) GetChanges(ctx context.Context) (*Changes, error) {
+func (c *StylusService) GetChanges(ctx context.Context) (*Changes, error) {
 	// Validate first
 	err := c.git.Validate()
 	if err != nil {
@@ -50,7 +50,7 @@ func (c *CalliopeService) GetChanges(ctx context.Context) (*Changes, error) {
 	return &Changes{Diff: diff, Files: files}, nil
 }
 
-func (c *CalliopeService) GetCommitMessage(ctx context.Context, changes *Changes) (string, error) {
+func (c *StylusService) GetCommitMessage(ctx context.Context, changes *Changes) (string, error) {
 	prompt := fmt.Sprintf(`Generate a conventional commit message for these changes.
 Files: %s 
 Diff: %s 
