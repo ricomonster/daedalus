@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/ricomonster/daedalus/git"
+	"github.com/tidwall/sjson"
 )
 
 const (
@@ -185,22 +186,12 @@ func (vs VersionSource) Write(version string) error {
 			return err
 		}
 
-		var packageJSON map[string]json.RawMessage
-		if err := json.Unmarshal(data, &packageJSON); err != nil {
-			return err
-		}
-
-		value, _ := json.Marshal(version)
-		packageJSON["version"] = value
-
-		output, err := json.MarshalIndent(packageJSON, "", " ")
+		updated, err := sjson.SetBytes(data, "version", version)
 		if err != nil {
 			return err
 		}
 
-		output = append(output, '\n')
-
-		return os.WriteFile(vs.Path, output, 0o644)
+		return os.WriteFile(vs.Path, updated, 0o644)
 
 	case VersionTypeGit:
 		if version == "" {
@@ -224,4 +215,15 @@ func NormalizeVersion(version string) (string, error) {
 	}
 
 	return strings.Join(matches[2:], "."), nil
+}
+
+func detectIndent(data []byte) string {
+	for _, line := range strings.Split(string(data), "\n") {
+		trimmed := strings.TrimLeft(line, " \t")
+		if trimmed == line || trimmed == "" {
+			continue
+		}
+		return line[:len(line)-len(trimmed)]
+	}
+	return "  "
 }
