@@ -97,27 +97,27 @@ func (c *Client) PushTag(tag string) error {
 	cmd := c.exec("tag", tag)
 	out, err := cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf(
-			"failed to create tag %s: %w: %s",
-			tag,
-			err,
-			strings.TrimSpace(string(out)),
-		)
+		detail := strings.TrimSpace(string(out))
+		if detail != "" {
+			return fmt.Errorf("create tag %q: %s: %w", tag, detail, err)
+		}
+
+		return fmt.Errorf("create tag %q: %w", tag, err)
 	}
 
 	// Push tag to the origin
 	cmd = c.exec("push", "origin", "refs/tags/"+tag)
 	out, err = cmd.CombinedOutput()
 	if err != nil {
-		return fmt.Errorf(
-			"failed to push tag %s: %w: %s",
-			tag,
-			err,
-			strings.TrimSpace(string(out)),
-		)
+		detail := strings.TrimSpace(string(out))
+		if detail != "" {
+			return fmt.Errorf("push tag %q: %s: %w", tag, detail, err)
+		}
+
+		return fmt.Errorf("push tag %q: %w", tag, err)
 	}
 
-	return cmd.Run()
+	return nil
 }
 
 func (c *Client) Validate() error {

@@ -131,11 +131,5 @@ var stylusCmd = &cobra.Command{
 func init() {
 	rootCmd.AddCommand(stylusCmd)
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
 	stylusCmd.Flags().Bool("push", false, "push current branch after committing")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// stylusCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

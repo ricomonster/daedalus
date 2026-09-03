@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
-	"os/exec"
 	"path/filepath"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/ricomonster/daedalus/git"
@@ -18,9 +18,17 @@ const (
 	VersionTypeGit         VersionType = "git"
 )
 
+const (
+	VersionBumpTypeMajor VersionBumpType = "major"
+	VersionBumpTypeMinor VersionBumpType = "minor"
+	VersionBumpTypePatch VersionBumpType = "patch"
+)
+
 var semverPattern = regexp.MustCompile(`^(v?)([0-9]+)\.([0-9]+)\.([0-9]+)$`)
 
 type (
+	VersionBumpType string
+
 	VersionType string
 
 	VersionSource struct {
@@ -89,6 +97,34 @@ func (c *CaliperService) DetectVersionSource(path string) (*VersionSource, error
 	return &VersionSource{VersionTypeGit, root}, nil
 }
 
+func (c *CaliperService) Bump(bump VersionBumpType, current string) (string, error) {
+	matches := semverPattern.FindStringSubmatch(strings.TrimSpace(current))
+	if len(matches) != 5 {
+		return "", fmt.Errorf("invalid version %q", current)
+	}
+
+	major, _ := strconv.Atoi(matches[2])
+	minor, _ := strconv.Atoi(matches[3])
+	patch, _ := strconv.Atoi(matches[4])
+
+	switch bump {
+	case VersionBumpTypeMajor:
+		major++
+		minor, patch = 0, 0
+
+	case VersionBumpTypeMinor:
+		minor++
+		patch = 0
+
+	case VersionBumpTypePatch:
+		patch++
+
+	default:
+		return "", fmt.Errorf("unknown version bump: %q", bump)
+	}
+	return fmt.Sprintf("%d.%d.%d", major, minor, patch), nil
+}
+
 func (vs VersionSource) Read() (string, error) {
 	switch vs.Type {
 	case VersionTypeVersionFile:
@@ -134,6 +170,11 @@ func (vs VersionSource) Read() (string, error) {
 }
 
 func (vs VersionSource) Write(version string) error {
+	version, err := NormalizeVersion(version)
+	if err != nil {
+		return nil
+	}
+
 	switch vs.Type {
 	case VersionTypeVersionFile:
 		return os.WriteFile(vs.Path, []byte(version+"\n"), 0o644)
@@ -173,4 +214,14 @@ func (vs VersionSource) Write(version string) error {
 	}
 
 	return fmt.Errorf("source %s is not writable", vs.Type)
+}
+
+func NormalizeVersion(version string) (string, error) {
+	version = strings.TrimSpace(version)
+	matches := semverPattern.FindStringSubmatch(version)
+	if matches == nil {
+		return "", fmt.Errorf("invalid version %q", version)
+	}
+
+	return strings.Join(matches[2:], "."), nil
 }
