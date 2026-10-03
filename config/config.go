@@ -36,10 +36,8 @@ func New() (*Config, error) {
 
 	v := viper.New()
 
-	v.SetConfigName(file)
-	v.AddConfigPath(path)
-
 	v.SetConfigType("dotenv")
+	v.SetConfigFile(path)
 
 	if err := v.ReadInConfig(); err != nil {
 		var notFound viper.ConfigFileNotFoundError
