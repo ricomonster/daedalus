@@ -3,6 +3,7 @@ package config
 import (
 	"errors"
 	"fmt"
+	"io/fs"
 	"os"
 	"path/filepath"
 
@@ -13,7 +14,8 @@ var file = "config"
 
 type (
 	Config struct {
-		v *viper.Viper
+		v    *viper.Viper
+		path string
 	}
 )
 
@@ -24,34 +26,31 @@ func New() (*Config, error) {
 		return nil, fmt.Errorf("could not get home directory: %w", err)
 	}
 
-	configDir := filepath.Join(home, ".config", "daedalus")
-	configFile := filepath.Join(configDir, file)
+	dir := filepath.Join(home, ".config", "daedalus")
+	path := filepath.Join(dir, file)
 
 	// Create the directory if it doesn't exist
-	if err := os.MkdirAll(configDir, 0o755); err != nil {
+	if err := os.MkdirAll(dir, 0o755); err != nil {
 		return nil, fmt.Errorf("failed to create config directory: %w", err)
 	}
 
 	v := viper.New()
 
 	v.SetConfigName(file)
-	v.SetConfigType("dotenv")
-	v.AddConfigPath(configDir)
+	v.AddConfigPath(path)
 
-	var fileLookupError viper.ConfigFileNotFoundError
+	v.SetConfigType("dotenv")
+
 	if err := v.ReadInConfig(); err != nil {
-		if errors.As(err, &fileLookupError) {
-			// Create the config file if it doesn't exist
-			if err := v.WriteConfigAs(configFile); err != nil {
-				return nil, fmt.Errorf("failed to create config file: %w", err)
-			}
-		} else {
-			// Config file was found but another error was produced
-			return nil, err
+		var notFound viper.ConfigFileNotFoundError
+		if !errors.As(err, &notFound) && !errors.Is(err, fs.ErrNotExist) {
+			return nil, fmt.Errorf("read config: %w", err)
 		}
+	} else if err := os.Chmod(path, 0o600); err != nil {
+		return nil, fmt.Errorf("secure config file: %w", err)
 	}
 
-	return &Config{v}, nil
+	return &Config{v, path}, nil
 }
 
 func (c *Config) GetString(key string) string {
@@ -63,5 +62,33 @@ func (c *Config) Set(key string, value any) {
 }
 
 func (c *Config) Save() error {
-	return c.v.WriteConfig()
+	dir := filepath.Dir(c.path)
+	tmp, err := os.CreateTemp(dir, ".config-*.dotenv")
+	if err != nil {
+		return fmt.Errorf("create temporary config: %w", err)
+	}
+
+	tmpPath := tmp.Name()
+	defer func() {
+		_ = os.Remove(tmpPath)
+	}()
+
+	if err := tmp.Chmod(0o600); err != nil {
+		_ = tmp.Close()
+		return fmt.Errorf("secure temporary config: %w", err)
+	}
+
+	if err := tmp.Close(); err != nil {
+		return fmt.Errorf("write temporary config: %w", err)
+	}
+
+	if err := c.v.WriteConfigAs(tmpPath); err != nil {
+		return fmt.Errorf("write temporary config: %w", err)
+	}
+
+	if err := os.Rename(tmpPath, c.path); err != nil {
+		return fmt.Errorf("replace config: %w", err)
+	}
+
+	return nil
 }

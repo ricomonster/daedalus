@@ -59,13 +59,13 @@ build: tidy ## Build for the current machine (output: ./release-cli)
 .PHONY: build-all
 build-all: tidy $(DIST_DIR) ## Build binaries for all platforms into ./dist/
 	@echo "→ Building all platform binaries..."
-	GOOS=darwin  GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(BINARY_NAME)-darwin-arm64  .
+	CGO_ENABLED=0 GOOS=darwin  GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(BINARY_NAME)-darwin-arm64  .
 	@echo "  ✓ $(DIST_DIR)/$(BINARY_NAME)-darwin-arm64"
-	GOOS=darwin  GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(BINARY_NAME)-darwin-amd64  .
+	CGO_ENABLED=0 GOOS=darwin  GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(BINARY_NAME)-darwin-amd64  .
 	@echo "  ✓ $(DIST_DIR)/$(BINARY_NAME)-darwin-amd64"
-	GOOS=linux   GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(BINARY_NAME)-linux-amd64   .
+	CGO_ENABLED=0 GOOS=linux   GOARCH=amd64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(BINARY_NAME)-linux-amd64   .
 	@echo "  ✓ $(DIST_DIR)/$(BINARY_NAME)-linux-amd64"
-	GOOS=linux   GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(BINARY_NAME)-linux-arm64   .
+	CGO_ENABLED=0 GOOS=linux   GOARCH=arm64 go build -ldflags "$(LDFLAGS)" -o $(DIST_DIR)/$(BINARY_NAME)-linux-arm64   .
 	@echo "  ✓ $(DIST_DIR)/$(BINARY_NAME)-linux-arm64"
 	@echo ""
 	@echo "✓ All binaries written to ./$(DIST_DIR)/"
